@@ -12,6 +12,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+
 class OrderController extends Controller
 {
     use ApiResponse;
@@ -22,11 +23,15 @@ class OrderController extends Controller
     public function buyerOrders()
     {
         $orders = Order::where('buyer_id', auth()->id())
-            ->with(['product', 'seller'])
+            ->with(['product', 'seller', 'addresse'])
             ->latest()
-            ->get();
+            ->paginate(10);
+        //->get();
 
-        return $this->success(OrderResource::collection($orders));
+        return $this->success(
+            OrderResource::collection($orders),
+            'Buyer orders retrieved successfully'
+        );
     }
 
     // =========================
@@ -35,11 +40,15 @@ class OrderController extends Controller
     public function sellerOrders()
     {
         $orders = Order::where('seller_id', auth()->id())
-            ->with(['product', 'buyer'])
+            ->with(['product', 'buyer', 'addresse'])
             ->latest()
-            ->get();
+            ->paginate(10);
+        //->get();
 
-        return $this->success(OrderResource::collection($orders));
+        return $this->success(
+            OrderResource::collection($orders),
+            'Seller orders retrieved successfully'
+        );
     }
 
     // =========================
@@ -79,7 +88,8 @@ class OrderController extends Controller
             'seller_id' => $product->seller_id,
             'addresse_id' => $request->addresse_id,
             'price' => $product->price,
-            'status' => 'pending'
+            'status' => 'pending',
+            'expires_at' => now()->addHours(24),
         ]);
 
         return $this->success(
@@ -96,7 +106,7 @@ class OrderController extends Controller
     // =========================
     public function show($id)
     {
-        $order = Order::with(['product', 'buyer', 'seller'])->findOrFail($id);
+        $order = Order::with(['product', 'buyer', 'seller', 'addresse'])->findOrFail($id);
 
         $this->authorize('view', $order);
 
@@ -130,8 +140,8 @@ class OrderController extends Controller
         ]);
 
         return $this->success(
-            new OrderResource($order),
-            'Order addresse updated successfully'
+            new OrderResource($order->load('addresse')),
+            'Order address updated successfully'
         );
     }
 
@@ -146,7 +156,7 @@ class OrderController extends Controller
 
         $order->delete();
 
-        return $this->success(null, 'Order deleted');
+        return $this->success(null, 'Order deleted successfully');
     }
 
     // =========================
@@ -168,11 +178,10 @@ class OrderController extends Controller
             $order->update(['status' => 'accepted']);
             $product->update(['status' => 'reserved']);
 
-            return $this->success($order, 'Order accepted');
-            /*eturn $this->success(
+            return $this->success(
                 new OrderResource($order->load(['product', 'buyer', 'seller'])),
-                'Order accepted'
-            );*/
+                'Order accepted successfully'
+            );
         });
     }
 
@@ -186,7 +195,11 @@ class OrderController extends Controller
         $this->authorize('ship', $order);
 
         $order->update(['status' => 'shipped']);
-        return $this->success($order, 'Order shipped');
+
+        return $this->success(
+            new OrderResource($order->load(['product', 'buyer', 'seller'])),
+            'Order shipped successfully'
+        );
     }
 
     // =========================
@@ -213,7 +226,7 @@ class OrderController extends Controller
 
         return $this->success(
             new OrderResource(
-                $order->load(['product', 'buyer', 'seller', 'address'])
+                $order->load(['product', 'buyer', 'seller'])
             ),
             'Order delivered successfully'
         );
@@ -230,7 +243,13 @@ class OrderController extends Controller
 
         $order->update(['status' => 'cancelled']);
         $order->product->update(['status' => 'available']);
-        return $this->success(null, 'Order cancelled');
+
+        return $this->success(
+            new OrderResource(
+                $order->load(['product', 'buyer'])
+            ),
+            'Order cancelled successfully'
+        );
     }
 
     // =========================
@@ -242,10 +261,22 @@ class OrderController extends Controller
 
         $this->authorize('reject', $order);
 
-        $order->update(['status' => 'rejected']);
-        $order->product->update(['status' => 'available']);
+        //$order->update(['status' => 'rejected']);
+        //$order->product->update(['status' => 'available']);
 
-        return $this->success(null, 'Order rejected');
+        if ($order->status === 'accepted') {
+            $order->update(['status' => 'pending']);
+            $order->product->update(['status' => 'available']);
+        } else {
+            $order->update(['status' => 'rejected']);
+        }
+
+        return $this->success(
+            new OrderResource(
+                $order->load(['product', 'buyer'])
+            ),
+            'Order rejected'
+        );
     }
 
     // =========================
@@ -260,6 +291,11 @@ class OrderController extends Controller
         $order->update(['status' => 'failed_delivery']);
         $order->product->update(['status' => 'available']);
 
-        return $this->success(null, 'Delivery failed');
+        return $this->success(
+            new OrderResource(
+                $order->load(['product', 'buyer'])
+            ),
+            'Delivery failed'
+        );
     }
 }

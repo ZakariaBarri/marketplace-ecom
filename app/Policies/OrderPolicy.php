@@ -13,14 +13,16 @@ class OrderPolicy
     public function accept(User $user, Order $order)
     {
         return $user->id === $order->seller_id
-            && $order->status === 'pending';
+            && $order->status === 'pending'
+            && now()->lessThan($order->expires_at);
     }
 
     // 🔥 البائع يرفض الطلب
     public function reject(User $user, Order $order)
     {
         return $user->id === $order->seller_id
-            && $order->status === 'pending';
+            && in_array($order->status, ['pending', 'accepted'])
+            && now()->lessThan($order->expires_at);
     }
 
     // 🔥 البائع يشحن

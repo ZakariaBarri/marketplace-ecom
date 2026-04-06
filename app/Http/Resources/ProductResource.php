@@ -22,6 +22,15 @@ class ProductResource extends JsonResource
             'description' => $this->description,
             'price' => number_format($this->price, 2),
             'status' => $this->status,
+
+            'images' => $this->images->map(function ($img) {
+                return asset('storage/' . $img->path);
+            }),
+            'main_image' =>  optional(
+                $this->images->where('is_main', true)->first()
+            )->path ? asset('storage/' . $this->images->where('is_main', true)->first()->path) : null,
+            //asset('storage/' . $this->images->where('is_main', true)->first()->path) ,
+
             'condition' => $this->whenLoaded('condition', function () {
                 return [
                     'id' => $this->condition->id,
@@ -41,9 +50,8 @@ class ProductResource extends JsonResource
                     'email' => $this->seller->email,
                 ];
             }),
-            'created_at' => $this->created_at ? $this->created_at->toDateTimeString() : null,
-            'updated_at' => $this->updated_at ? $this->updated_at->toDateTimeString() : null,
+            'created_at' => $this->created_at->toDateTimeString(),
+            'updated_at' => $this->updated_at->toDateTimeString()
         ];
-        //'condition' => $this->condition->name,
     }
 }

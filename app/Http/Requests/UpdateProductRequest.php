@@ -7,6 +7,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
+use Illuminate\Validation\Rule;
+
 class UpdateProductRequest extends FormRequest
 {
     /**
@@ -25,12 +27,32 @@ class UpdateProductRequest extends FormRequest
      */
     public function rules(): array
     {
+        $product = $this->route('product'); //-->return Product model
+
         return [
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'price' => 'sometimes|numeric|min:0',
             'condition_id' => 'sometimes|exists:conditions,id',
             'category_id' => 'sometimes|exists:categories,id',
+            'images' => 'sometimes|array|max:5',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            
+            'main_image_id' => [
+                'sometimes',
+                'nullable',
+                Rule::exists('images', 'id')->where(function ($q) use ($product) {
+                    $q->where('product_id', $product->id);
+                })
+            ],
+
+            'delete_image_ids' => 'sometimes|array',
+            'delete_image_ids.*' => [
+                'integer',
+                Rule::exists('images', 'id')->where(function ($q) use ($product) {
+                    $q->where('product_id', $product->id);
+                })
+            ],
         ];
     }
 

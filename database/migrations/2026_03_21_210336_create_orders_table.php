@@ -13,14 +13,23 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->enum('status', ['pending', 'accepted', 'shipped', 'delivered',
-             'cancelled', 'rejected', 'failed_delivery'])
-            ->default('pending');
-            $table->unsignedDecimal('price',6,2);
+            $table->enum('status', [
+                'pending',
+                'accepted',
+                'shipped',
+                'delivered',
+                'cancelled',
+                'rejected',
+                'failed_delivery',
+                'expired'
+            ])
+                ->default('pending');
+            $table->unsignedDecimal('price', 6, 2);
             $table->foreignId('addresse_id')->constrained('addresses');
             $table->foreignId('buyer_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('seller_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();;
+            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
+            $table->timestamp('expires_at')->nullable();
             $table->timestamps();
         });
     }

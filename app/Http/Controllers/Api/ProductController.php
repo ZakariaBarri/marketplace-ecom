@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\UpdateProductRequest;
 
 use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -21,14 +22,14 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         //http://127.0.0.1:8000/api/products?search=laptop&category_id=2&condition_id=1&min_price=100&max_price=1000&page=2
-        
+
         $products = Product::query();
 
         $products->where('status', 'available');
 
         // Search by title
         if ($request->search) {
-            $products->where('title', 'like', '%' . $request->search . '%');
+            $products->where('title', 'like', '%' . trim($request->search) . '%');
         }
 
         // Filter by category
@@ -42,11 +43,11 @@ class ProductController extends Controller
         }
 
         // Price range filter
-        if ($request->min_price) {
+        if ($request->has('min_price')) {
             $products->where('price', '>=', $request->min_price);
         }
 
-        if ($request->max_price) {
+        if ($request->has('max_price')) {
             $products->where('price', '<=', $request->max_price);
         }
 
@@ -56,7 +57,7 @@ class ProductController extends Controller
         $products = $products->latest()->paginate(10);
 
         return ProductResource::collection($products)->additional([
-            'status' => 'success',
+            'success' => true,
             'message' => 'Products retrieved successfully',
             'meta' => [
                 'current_page' => $products->currentPage(),
@@ -65,6 +66,7 @@ class ProductController extends Controller
                 'total' => $products->total(),
             ],
         ]);
+       
     }
 
     /**
@@ -76,14 +78,25 @@ class ProductController extends Controller
 
         $product = Product::create([
             ...$request->validated(),
-            'seller_id' => auth()->id()
+            'seller_id' => auth()->id(),
+            'status' => 'available'
         ]);
 
-        // Load relations if needed in resource
-        $product->load(['seller', 'condition', 'category']);
+        foreach ($request->file('images') as $index => $image) {
+            // حفظ الصورة
+            $path = $image->store('products', 'public');
+
+            // حفظ في DB
+            $product->images()->create([
+                'path' => $path,
+                'is_main' => $index === 0 // أول صورة هي الرئيسية
+            ]);
+        }
 
         return $this->success(
-            new ProductResource($product),
+            new ProductResource(
+                $product->load(['images', 'condition', 'category', 'seller'])
+            ),
             'Product created successfully'
         );
     }
@@ -96,9 +109,10 @@ class ProductController extends Controller
         /*if (!$product) {
             return $this->error('Product not found', null, 404);
         }*/
-        $product->load(['seller', 'condition', 'category']);
         return $this->success(
-            new ProductResource($product),
+            new ProductResource(
+                $product->load(['images', 'condition', 'category', 'seller'])
+            ),
             'Product found'
         );
     }
@@ -110,10 +124,50 @@ class ProductController extends Controller
     {
         $this->authorize('update', $product);
 
-        $product->update($request->validated());
+        $product->update($request->only([
+            'title',
+            'description',
+            'price',
+            'condition_id',
+            'category_id'
+        ]));
+
+        // حذف الصور
+        if ($request->filled('delete_image_ids')) {
+            $imagesToDelete = $product->images()->whereIn('id', $request->delete_image_ids)->get();
+            foreach ($imagesToDelete as $img) {
+                Storage::disk('public')->delete($img->path);
+                $img->delete();
+            }
+        }
+
+        // رفع الصور الجديدة
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $imgFile) {
+                $path = $imgFile->store('products', 'public');
+                $product->images()->create([
+                    'path' => $path,
+                    'is_main' => false
+                ]);
+            }
+        }
+
+        // تغيير main image
+        if ($request->filled('main_image_id')) {
+            $product->images()->update(['is_main' => false]);
+            $product->images()->where('id', $request->main_image_id)->update(['is_main' => true]);
+        }
+
+        // ضمان وجود main_image
+        if (!$product->images()->where('is_main', true)->exists()) {
+            $first = $product->images()->first();
+            if ($first) {
+                $first->update(['is_main' => true]);
+            }
+        }
 
         return $this->success(
-            new ProductResource($product),
+            new ProductResource($product->load(['images', 'condition', 'category', 'seller'])),
             'Product updated successfully'
         );
     }
