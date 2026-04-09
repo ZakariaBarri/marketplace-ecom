@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\OrderCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
@@ -91,6 +92,9 @@ class OrderController extends Controller
             'status' => 'pending',
             'expires_at' => now()->addHours(24),
         ]);
+
+        // إطلاق الحدث
+        OrderCreated::dispatch($order);
 
         return $this->success(
             new OrderResource(

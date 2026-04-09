@@ -15,12 +15,18 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('phone', 20)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
-            $table->string('role',25)->default('user');
-            //$table->enum('role',['user','admin'])->default('user');
+            //$table->string('role',25)->default('user');
+            $table->enum('role', ['user', 'admin'])->default('user');
+
+            $table->decimal('seller_rating_avg', 3, 1)->default(0);
+            $table->integer('seller_rating_count')->default(0);
+            $table->decimal('buyer_rating_avg', 3, 1)->default(0);
+            $table->integer('buyer_rating_count')->default(0);
         });
     }
 

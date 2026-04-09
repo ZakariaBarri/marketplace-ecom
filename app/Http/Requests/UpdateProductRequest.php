@@ -31,7 +31,7 @@ class UpdateProductRequest extends FormRequest
 
         return [
             'title' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'sometimes|string',
             'price' => 'sometimes|numeric|min:0',
             'condition_id' => 'sometimes|exists:conditions,id',
             'category_id' => 'sometimes|exists:categories,id',

@@ -14,7 +14,8 @@ class Order extends Model
         'addresse_id',
         'buyer_id',
         'seller_id',
-        'product_id'
+        'product_id',
+        'expires_at'
     ];
 
     public function addresse()
@@ -37,8 +38,8 @@ class Order extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function review()
+    public function reviews()
     {
-        return $this->hasOne(Review::class);
+        return $this->hasMany(Review::class);
     }
 }

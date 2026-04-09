@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\AddresseController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ConditionController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -60,4 +62,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
     Route::post('/orders/{id}/reject', [OrderController::class, 'reject']);
     Route::post('/orders/{id}/failed-delivery', [OrderController::class, 'failedDelivery']);
+    //----------------------------------------------------------------------
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    // استعراض جميع التقييمات (اختياري: Admin)
+    Route::get('/reviews', [ReviewController::class, 'index']);
+    // تقييمات مستخدم معين
+    Route::get('/users/{userId}/reviews', [ReviewController::class, 'userReviews']);
+    // تقييمات كبائع
+    Route::get('/users/{userId}/reviews/seller', [ReviewController::class, 'sellerReviews']);
+    // تقييمات كمشتري
+    Route::get('/users/{userId}/reviews/buyer', [ReviewController::class, 'buyerReviews']);
+    // تقييمات كتبتها شخصيًا
+    Route::get('/reviews/my', [ReviewController::class, 'myReviews']);
+    //-----------------------------------------------------------------------
+
+    Route::apiResource('addresses', AddresseController::class);
+
+    
 });

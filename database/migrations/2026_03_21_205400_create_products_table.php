@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('description')->nullable();
+            $table->text('description');
             $table->unsignedDecimal('price',6,2);
             $table->enum('status',['available','sold','reserved'])->default('available');
             $table->foreignId('condition_id')->constrained('conditions');

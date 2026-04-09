@@ -42,7 +42,7 @@ class OrderResource extends JsonResource
                     'id' => $this->addresse->id,
                     'city' => $this->addresse->city,
                     'address' => $this->addresse->address,
-                    'phone' => $this->addresse->phone,
+                    'contact_phone' => $this->addresse->contact_phone,
                 ];
             }),
 

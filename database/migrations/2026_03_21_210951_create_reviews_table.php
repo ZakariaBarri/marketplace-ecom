@@ -14,8 +14,14 @@ return new class extends Migration
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
             $table->unsignedTinyInteger('rating');
-            $table->string('comment')->nullable();
-            $table->foreignId('order_id')->unique()->constrained('orders');
+            $table->text('comment')->nullable();
+            //$table->enum('role', ['buyer', 'seller']);
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('reviewer_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('reviewed_user_id')->constrained('users')->cascadeOnDelete();
+            $table->unique(['order_id', 'reviewer_id']);
+            //$table->index('reviewed_user_id');
+
             $table->timestamps();
         });
     }

@@ -20,8 +20,13 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
-        'role'
+        'role',
+        'seller_rating_avg',
+        'seller_rating_count',
+        'buyer_rating_avg',
+        'buyer_rating_count'
     ];
 
     /**
@@ -59,5 +64,19 @@ class User extends Authenticatable
     public function sales()
     {
         return $this->hasMany(Order::class, 'seller_id');
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany(Addresse::class, 'buyer_id');
+    }
+
+    public function reviewsAsReviewer()
+    {
+        return $this->hasMany(Review::class, 'reviewer_id');
+    }
+    public function reviewsAsReviewed()
+    {
+        return $this->hasMany(Review::class, 'reviewed_user_id');
     }
 }
