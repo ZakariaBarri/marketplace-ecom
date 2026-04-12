@@ -66,7 +66,18 @@ class ProductController extends Controller
                 'total' => $products->total(),
             ],
         ]);
-       
+    }
+
+    public function myProducts()
+    {
+        $products = auth()->user()->products()->with(['condition','category'])
+            ->latest()
+            ->paginate(10);
+
+        return $this->success(
+            ProductResource::collection($products),
+            'Product found'
+        );
     }
 
     /**

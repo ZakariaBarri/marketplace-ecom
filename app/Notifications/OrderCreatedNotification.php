@@ -7,16 +7,19 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+use Illuminate\Notifications\Messages\BroadcastMessage;
+
 class OrderCreatedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    public $order;
     /**
      * Create a new notification instance.
      */
-    public function __construct(public $order)
+    public function __construct($order)
     {
-        //
+        $this->order = $order;
     }
 
     /**
@@ -26,7 +29,16 @@ class OrderCreatedNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
+    }
+
+    public function toBroadcast($notifiable)
+    {
+        return new BroadcastMessage([
+            'message' => 'You have a new order',
+            'order_id' => $this->order->id,
+            'buyer_id' => $this->order->buyer_id,
+        ]);
     }
 
     /**
@@ -50,6 +62,7 @@ class OrderCreatedNotification extends Notification implements ShouldQueue
         return [
             'message' => 'You have a new order',
             'order_id' => $this->order->id,
+            'buyer_id' => $this->order->buyer_id,
         ];
     }
 }

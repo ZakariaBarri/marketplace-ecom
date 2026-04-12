@@ -43,6 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('products', ProductController::class)
         ->except(['index', 'show']);
 
+    Route::get('/my-products', [ProductController::class, 'myProducts']);
+
     Route::apiResource('/categories', CategoryController::class)
         ->except(['index', 'show']);
 
@@ -67,16 +69,16 @@ Route::middleware('auth:sanctum')->group(function () {
     // استعراض جميع التقييمات (اختياري: Admin)
     Route::get('/reviews', [ReviewController::class, 'index']);
     // تقييمات مستخدم معين
-    Route::get('/users/{userId}/reviews', [ReviewController::class, 'userReviews']);
+    Route::get('/users/{id}/reviews', [ReviewController::class, 'userReviews']);
     // تقييمات كبائع
-    Route::get('/users/{userId}/reviews/seller', [ReviewController::class, 'sellerReviews']);
+    Route::get('/users/{id}/reviews/seller', [ReviewController::class, 'sellerReviews']);
     // تقييمات كمشتري
-    Route::get('/users/{userId}/reviews/buyer', [ReviewController::class, 'buyerReviews']);
+    Route::get('/users/{id}/reviews/buyer', [ReviewController::class, 'buyerReviews']);
     // تقييمات كتبتها شخصيًا
     Route::get('/reviews/my', [ReviewController::class, 'myReviews']);
     //-----------------------------------------------------------------------
 
-    Route::apiResource('addresses', AddresseController::class);
+    Route::apiResource('/me/addresses', AddresseController::class);
 
     
 });
