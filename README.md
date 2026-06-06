@@ -1,66 +1,222 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🛒 Thrift — Marketplace Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A RESTful API backend for the **Thrift** second-hand fashion marketplace, built with **Laravel** and **Laravel Sanctum**.
 
-## About Laravel
+👉 **Frontend Repository:** [https://github.com/ZakariaBarri/marketplace-frontend](https://github.com/ZakariaBarri/marketplace-frontend)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- 🔐 **Authentication** — Register, login, logout with Laravel Sanctum (Bearer tokens)
+- 📦 **Products** — Full CRUD with image support, categories, sizes, and conditions
+- 🛒 **Orders** — Complete order lifecycle: pending → accepted → shipped → delivered
+- ⭐ **Reviews** — Buyer/seller review system with automatic rating updates
+- 🔔 **Real-time Notifications** — Pusher-powered broadcasting via Laravel Echo
+- 📍 **Addresses** — User address book management
+- 👤 **Profile** — Profile update, avatar, password change, and stats
+- 🛡️ **Admin Panel** — Manage users, products, and categories with a dedicated admin middleware
+- ⏰ **Scheduled Jobs** — Auto-expire pending orders via a scheduled Artisan command
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🗂️ Project Structure
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```
+app/
+├── Console/Commands/       # Artisan commands (ExpireOrders)
+├── Events/                 # Broadcasting events (OrderCreated, ReviewCreated)
+├── Http/
+│   ├── Controllers/Api/    # API controllers
+│   │   └── Admin/          # Admin-only controllers
+│   ├── Middleware/         # Auth, Admin guards
+│   ├── Requests/           # Form request validation
+│   └── Resources/          # API response transformers
+├── Listeners/              # Event listeners (NotifySeller, UpdateUserRating)
+├── Models/                 # Eloquent models
+│   ├── User, Product, Order, Review
+│   ├── Category, Condition, Size
+│   ├── Addresse, Image
+│   └── Notification
+├── Notifications/          # Laravel notifications (OrderCreatedNotification)
+└── Policies/               # Authorization policies
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+database/
+└── migrations/             # All database migrations
 
-## Laravel Sponsors
+routes/
+├── api.php                 # All API routes
+└── channels.php            # Broadcasting channels
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 🚀 Getting Started
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Prerequisites
 
-## Contributing
+- **PHP** >= 8.1
+- **Composer**
+- **MySQL**
+- **Pusher** account (for real-time notifications)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Installation
 
-## Code of Conduct
+```bash
+# Clone the repository
+git clone https://github.com/ZakariaBarri/marketplace-backend.git
+cd marketplace-backend
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Install dependencies
+composer install
 
-## Security Vulnerabilities
+# Copy environment file and configure it
+cp .env.example .env
+php artisan key:generate
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Run database migrations
+php artisan migrate
 
-## License
+# Start the development server
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The API will be available at `http://127.0.0.1:8000/api`.
+
+---
+
+## ⚙️ Environment Configuration
+
+Fill in the following keys in your `.env` file:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+BROADCAST_DRIVER=pusher
+
+PUSHER_APP_ID=your_app_id
+PUSHER_APP_KEY=your_app_key
+PUSHER_APP_SECRET=your_app_secret
+PUSHER_HOST=
+PUSHER_PORT=443
+PUSHER_SCHEME=https
+PUSHER_APP_CLUSTER=mt1
+```
+
+---
+
+## 📡 API Endpoints
+
+### Auth
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/register` | ❌ | Register a new user |
+| POST | `/api/login` | ❌ | Login and get token |
+| POST | `/api/logout` | ✅ | Logout current device |
+| POST | `/api/logout-all` | ✅ | Logout all devices |
+| GET | `/api/me` | ✅ | Get authenticated user |
+
+### Products
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/products` | ❌ | List all products |
+| GET | `/api/products/{id}` | ❌ | Get a product |
+| POST | `/api/products` | ✅ | Create a product |
+| PUT | `/api/products/{id}` | ✅ | Update a product |
+| DELETE | `/api/products/{id}` | ✅ | Delete a product |
+| GET | `/api/my-products` | ✅ | Get current user's products |
+
+### Orders
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/orders` | ✅ | Place an order |
+| GET | `/api/buyer/orders` | ✅ | Get purchases |
+| GET | `/api/seller/orders` | ✅ | Get received orders |
+| GET | `/api/orders/{id}` | ✅ | Get order details |
+| POST | `/api/orders/{id}/accept` | ✅ | Accept an order |
+| POST | `/api/orders/{id}/ship` | ✅ | Mark as shipped |
+| POST | `/api/orders/{id}/deliver` | ✅ | Mark as delivered |
+| POST | `/api/orders/{id}/cancel` | ✅ | Cancel an order |
+| POST | `/api/orders/{id}/reject` | ✅ | Reject an order |
+
+### Reviews
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/reviews` | ✅ | Submit a review |
+| GET | `/api/users/{id}/reviews` | ✅ | All reviews for a user |
+| GET | `/api/users/{id}/reviews/seller` | ✅ | Seller reviews |
+| GET | `/api/users/{id}/reviews/buyer` | ✅ | Buyer reviews |
+
+### Profile & Addresses
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/profile` | ✅ | Get profile |
+| PUT | `/api/profile` | ✅ | Update profile |
+| POST | `/api/profile/password` | ✅ | Change password |
+| GET | `/api/profile/stats` | ✅ | Get profile stats |
+| GET | `/api/me/addresses` | ✅ | List addresses |
+| POST | `/api/me/addresses` | ✅ | Add an address |
+| PUT | `/api/me/addresses/{id}` | ✅ | Update an address |
+| DELETE | `/api/me/addresses/{id}` | ✅ | Delete an address |
+
+### Notifications
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/notifications` | ✅ | List notifications |
+| POST | `/api/notifications/{id}/read` | ✅ | Mark one as read |
+| POST | `/api/notifications/read-all` | ✅ | Mark all as read |
+
+### Admin (requires admin role)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/admin/dashboard` | Stats overview |
+| GET | `/api/admin/users` | List users |
+| DELETE | `/api/admin/users/{id}` | Delete a user |
+| GET | `/api/admin/products` | List products |
+| DELETE | `/api/admin/products/{id}` | Delete a product |
+| GET/POST/PUT/DELETE | `/api/admin/categories` | Manage categories |
+
+---
+
+## 🗄️ Database Models
+
+| Model | Description |
+|-------|-------------|
+| `User` | Buyers, sellers, and admins |
+| `Product` | Listings with images, category, size, condition |
+| `Order` | Transactions between buyer and seller |
+| `Review` | Post-order ratings |
+| `Category` | Product categories |
+| `Condition` | Product conditions (new, used...) |
+| `Size` | Clothing sizes |
+| `Addresse` | User delivery addresses |
+| `Image` | Product images |
+| `Notification` | In-app notifications |
+
+---
+
+## 🛠️ Tech Stack
+
+| Technology | Role |
+|---|---|
+| [Laravel](https://laravel.com/) | PHP framework |
+| [Laravel Sanctum](https://laravel.com/docs/sanctum) | API token authentication |
+| [Laravel Echo](https://laravel.com/docs/broadcasting) + [Pusher](https://pusher.com/) | Real-time broadcasting |
+| MySQL | Relational database |
+| Laravel Policies | Authorization per resource |
+| Laravel Events & Listeners | Decoupled business logic |
+
+---
+
+## ⏰ Scheduled Commands
+
+The `ExpireOrders` command automatically cancels pending orders past their expiry time. It is registered in `app/Console/Kernel.php` and should be added to your server's cron:
+
+```bash
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
