@@ -31,7 +31,8 @@ class UpdateUserRating
             $count = $user->seller_rating_count;
             $avg = $user->seller_rating_avg;
 
-            $newAvg = (($avg * $count) + $review->rating) / ($count + 1);
+            //$newAvg = (($avg * $count) + $review->rating) / ($count + 1);
+            $newAvg = round((($avg * $count) + $review->rating) / ($count + 1), 1);
 
             $user->update([
                 'seller_rating_avg' => $newAvg,

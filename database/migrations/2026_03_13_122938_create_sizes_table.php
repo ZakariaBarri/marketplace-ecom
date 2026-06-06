@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('addresses', function (Blueprint $table) {
+        Schema::create('sizes', function (Blueprint $table) {
             $table->id();
-            $table->string('city',30);
-            $table->string('address',200);
-            $table->string('contact_phone',20);
-            $table->foreignId('buyer_id')->constrained('users')->cascadeOnDelete();
+            $table->string('name'); // XS, S, M...
             $table->timestamps();
         });
     }
@@ -26,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('addresses');
+        Schema::dropIfExists('sizes');
     }
 };

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Admin;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProductResource extends JsonResource
+class AdminProductResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,7 +14,7 @@ class ProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $isDetail = $request->routeIs('products.index');
+        $isIndex = $request->routeIs('admin.products.index');
 
         $mainImage = $this->images
             ->firstWhere('is_main', true)
@@ -25,13 +25,13 @@ class ProductResource extends JsonResource
             'title' => $this->title,
             'price' => $this->price,
             'status' => $this->status,
-            'orders_count' => $this->whenCounted('orders'),
 
             'main_image' => $mainImage
                 ? asset('storage/' . $mainImage->path)
                 : null,
 
-            $this->mergeWhen(!$isDetail, [
+            // 📌 detail (full version)
+            $this->mergeWhen(!$isIndex, [
                 'description' => $this->description,
 
                 'images' => $this->images->map(fn($img) => [
@@ -39,11 +39,13 @@ class ProductResource extends JsonResource
                     'url' => asset('storage/' . $img->path),
                     'is_main' => (bool) $img->is_main,
                 ]),
-                'category' => $this->whenLoaded('category', fn() => $this->simpleRelation($this->category)),
+
                 'size' => $this->whenLoaded('size', fn() => $this->simpleRelation($this->size)),
             ]),
 
+            'category' => $this->whenLoaded('category', fn() => $this->simpleRelation($this->category)),
             'condition' => $this->whenLoaded('condition', fn() => $this->simpleRelation($this->condition)),
+
             'seller' => $this->whenLoaded('seller', fn() => [
                 'id' => $this->seller->id,
                 'name' => $this->seller->name,
@@ -51,8 +53,14 @@ class ProductResource extends JsonResource
                 'seller_rating_avg' => $this->seller->seller_rating_avg,
                 'seller_rating_count' => $this->seller->seller_rating_count,
             ]),
-            'created_at' => $this->created_at->toISOString(),
-            'updated_at' => $this->updated_at->toISOString(),
+
+            // 📊 Admin analytics
+            //'views_count' => $this->views_count ?? 0,
+            //'favorites_count' => $this->favorites_count ?? 0,
+            'orders_count' => $this->orders_count,
+
+            'created_at' => $this->created_at?->toISOString(),
+            'updated_at' => $this->updated_at?->toISOString(),
         ];
     }
 

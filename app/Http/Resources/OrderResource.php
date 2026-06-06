@@ -16,6 +16,8 @@ class OrderResource extends JsonResource
     {
         //return parent::toArray($request);
 
+        $myReview = $this->reviews->firstWhere('reviewer_id', auth()->id());
+
         return [
             'id' => $this->id,
             'status' => $this->status,
@@ -47,6 +49,15 @@ class OrderResource extends JsonResource
             }),
 
             'created_at' => $this->created_at,
+
+            'my_review' => $myReview ? [
+                'rating' => $myReview->rating,
+                'comment' => $myReview->comment,
+                'created_at' => $myReview->created_at,
+            ] : null,
+
+            'can_review' => $this->status === 'delivered' && !$myReview,
+            
         ];
 
         /*

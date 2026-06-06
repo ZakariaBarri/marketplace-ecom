@@ -35,6 +35,7 @@ class UpdateProductRequest extends FormRequest
             'price' => 'sometimes|numeric|min:0',
             'condition_id' => 'sometimes|exists:conditions,id',
             'category_id' => 'sometimes|exists:categories,id',
+            'size_id' => 'sometimes|exists:sizes,id',
             'images' => 'sometimes|array|max:5',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             

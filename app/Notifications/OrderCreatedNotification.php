@@ -13,13 +13,13 @@ class OrderCreatedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $order;
+    //public $order;
     /**
      * Create a new notification instance.
      */
-    public function __construct($order)
+    public function __construct(public $order)
     {
-        $this->order = $order;
+        //$this->order = $order;
     }
 
     /**
@@ -34,11 +34,25 @@ class OrderCreatedNotification extends Notification implements ShouldQueue
 
     public function toBroadcast($notifiable)
     {
-        return new BroadcastMessage([
-            'message' => 'You have a new order',
+        return new BroadcastMessage($this->payload());
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return $this->payload();
+    }
+
+    private function payload()
+    {
+        return [
+            'type' => 'order_created',
             'order_id' => $this->order->id,
-            'buyer_id' => $this->order->buyer_id,
-        ]);
+            'buyer' => [
+                'id' => $this->order->buyer->id,
+                'name' => $this->order->buyer->name,
+            ],
+            'message' => $this->order->buyer->name . ' placed a new order',
+        ];
     }
 
     /**
@@ -52,17 +66,4 @@ class OrderCreatedNotification extends Notification implements ShouldQueue
             ->line('Thank you for using our application!');
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
-    {
-        return [
-            'message' => 'You have a new order',
-            'order_id' => $this->order->id,
-            'buyer_id' => $this->order->buyer_id,
-        ];
-    }
 }

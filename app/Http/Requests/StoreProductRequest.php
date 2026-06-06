@@ -28,6 +28,7 @@ class StoreProductRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'size_id' => 'required|exists:sizes,id',
             'condition_id' => 'required|exists:conditions,id',
             'category_id' => 'required|exists:categories,id',
             'images' => 'required|array|min:2|max:5',

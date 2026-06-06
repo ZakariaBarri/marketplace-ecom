@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Events\OrderCreated;
+use App\Events\NewOrderCreated; 
 use App\Events\ReviewCreated;
 use App\Listeners\NotifySeller;
 use App\Listeners\UpdateUserRating;
@@ -25,7 +25,7 @@ class EventServiceProvider extends ServiceProvider
         ReviewCreated::class => [
             UpdateUserRating::class,
         ],
-        OrderCreated::class => [
+        NewOrderCreated::class => [ 
             NotifySeller::class,
         ],
     ];

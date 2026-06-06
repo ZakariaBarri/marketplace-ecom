@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\NewOrderCreated;
 use App\Events\OrderCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrderRequest;
@@ -24,7 +25,7 @@ class OrderController extends Controller
     public function buyerOrders()
     {
         $orders = Order::where('buyer_id', auth()->id())
-            ->with(['product', 'seller', 'addresse'])
+            ->with(['product', 'seller', 'addresse','reviews'])
             ->latest()
             ->paginate(10);
         //->get();
@@ -41,7 +42,7 @@ class OrderController extends Controller
     public function sellerOrders()
     {
         $orders = Order::where('seller_id', auth()->id())
-            ->with(['product', 'buyer', 'addresse'])
+            ->with(['product', 'buyer', 'addresse','reviews'])
             ->latest()
             ->paginate(10);
         //->get();
@@ -94,7 +95,9 @@ class OrderController extends Controller
         ]);
 
         // إطلاق الحدث
-        OrderCreated::dispatch($order);
+        //OrderCreated::dispatch($order);
+
+        event(new NewOrderCreated($order));
 
         return $this->success(
             new OrderResource(

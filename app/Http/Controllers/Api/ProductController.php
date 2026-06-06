@@ -21,9 +21,20 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        
         //http://127.0.0.1:8000/api/products?search=laptop&category_id=2&condition_id=1&min_price=100&max_price=1000&page=2
 
         $products = Product::query();
+
+        $products = Product::query()
+            //->with(['seller', 'category', 'condition', 'size', 'images']);
+            ->with([
+                'seller:id,name,email',
+                //'category:id,name',
+                'condition:id,name',
+                //'size:id,name',
+                'images:id,product_id,path,is_main'
+            ]);
 
         $products->where('status', 'available');
 
@@ -40,6 +51,11 @@ class ProductController extends Controller
         // Filter by condition
         if ($request->condition_id) {
             $products->where('condition_id', $request->condition_id);
+        }
+
+        // ✅ Filter by size
+        if ($request->size_id) {
+            $products->where('size_id', $request->size_id);
         }
 
         // Price range filter
@@ -70,7 +86,8 @@ class ProductController extends Controller
 
     public function myProducts()
     {
-        $products = auth()->user()->products()->with(['condition','category'])
+        $products = auth()->user()->products()->with(['condition', 'category', 'size'])
+            ->withCount('orders')
             ->latest()
             ->paginate(10);
 
@@ -106,7 +123,7 @@ class ProductController extends Controller
 
         return $this->success(
             new ProductResource(
-                $product->load(['images', 'condition', 'category', 'seller'])
+                $product->load(['size', 'images', 'condition', 'category', 'seller'])
             ),
             'Product created successfully'
         );
@@ -122,7 +139,7 @@ class ProductController extends Controller
         }*/
         return $this->success(
             new ProductResource(
-                $product->load(['images', 'condition', 'category', 'seller'])
+                $product->load(['size', 'images', 'condition', 'category', 'seller'])
             ),
             'Product found'
         );
@@ -140,7 +157,8 @@ class ProductController extends Controller
             'description',
             'price',
             'condition_id',
-            'category_id'
+            'category_id',
+            'size_id'
         ]));
 
         // حذف الصور
@@ -178,7 +196,7 @@ class ProductController extends Controller
         }
 
         return $this->success(
-            new ProductResource($product->load(['images', 'condition', 'category', 'seller'])),
+            new ProductResource($product->load(['size', 'images', 'condition', 'category', 'seller'])),
             'Product updated successfully'
         );
     }
